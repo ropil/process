@@ -26,15 +26,19 @@ let LISTSTART=${NUMSETTINGS}+1;
 
 # I/O-check and help text
 if [ $# -lt ${NUMREQUIRED} ]; then
-  echo "USAGE: $0 <opt1> <target1> [<target2> [...]]";
+  echo "USAGE: [SHRT=576] [LONG=768] $0 <name> <image1> [<image2> [...]]";
   echo "";
   echo " OPTIONS:";
-  echo "  opt1 - description...               ... no longer than this!";
-  echo "  target2 - description...            ... no longer than this!";
+  echo "  name   - basename of process batch (used for output names)";
+  echo "  imageN - image targets to process";
+  echo "";
+  echo " ENVIRONMENT:";
+  echo "  SHRT - Size of short dimension (default=576, try 384 or 768)";
+  echo "  LONG - Size of long dimension (default=768, try 512 or 1024)";
   echo "";
   echo " EXAMPLES:";
-  echo "  # Run on three files";
-  echo "  $0 file1 file2 file3 > output.txt";
+  echo "  # Process two image files";
+  echo "  SHRT=576 LONG=768 $0 image_01.png image_02.jpg";
   echo "";
   echo "process_image_phone  Copyright (C) 2017  Robert Pilstål;"
   echo "This program comes with ABSOLUTELY NO WARRANTY.";
@@ -44,11 +48,40 @@ if [ $# -lt ${NUMREQUIRED} ]; then
 fi;
 
 # Parse settings
-opt1=$1;
+name=$1;
 targetlist=${@:$LISTSTART};
 
+# Set default values
+if [ -z ${SHRT} ]; then
+  SHRT=576; #768, 384
+fi
+
+if [ -z ${LONG} ]; then
+  LONG=768; #1024, 512
+fi
+
+today=`date +%Y%m%d`;
+
 # Loop over arguments
+num=0;
 for target in ${targetlist}; do
-  # Do your deed
-  echo ${target};
+  let num=$num+1;
+  suf=`basename ${target} | awk -F . '{print $NF}'`;
+  read x y <<< `file ${target} |
+    awk -F , '{
+                for(i=1; i <= NF; i++)
+                  print $i
+              }' |
+    grep "^\s*[[:digit:]]\+x[[:digit:]]\+\s*$" |
+    sed 's/x/ /'`;
+  size="${SHRT}x${LONG}";
+  if [ $x -gt $y ]; then
+    size="${LONG}x${SHRT}";
+  fi;
+  echo "convert ${target} -resize ${size} \
+    ${today}_${name}_`printf %02d ${num}`.${suf}";
+  convert ${target} -resize ${size} \
+    ${today}_${name}_`printf %02d ${num}`.${suf};
 done;
+
+echo "Processed $num files";
