@@ -67,6 +67,7 @@ num=0;
 for target in ${targetlist}; do
   let num=$num+1;
   suf=`basename ${target} | awk -F . '{print $NF}'`;
+  dir=`dirname ${target}`;
   read x y <<< `file ${target} |
     awk -F , '{
                 for(i=1; i <= NF; i++)
@@ -79,9 +80,9 @@ for target in ${targetlist}; do
     size="${LONG}x${SHRT}";
   fi;
   echo "convert ${target} -resize ${size} \
-    ${today}_${name}_`printf %02d ${num}`.${suf}";
+    ${dir}/${today}_${name}_`printf %02d ${num}`.${suf}";
   convert ${target} -resize ${size} \
-    ${today}_${name}_`printf %02d ${num}`.${suf};
+    ${dir}/${today}_${name}_`printf %02d ${num}`.${suf};
 done;
 
 echo "Processed $num files";
