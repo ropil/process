@@ -39,11 +39,9 @@ if [ $# -lt ${NUMREQUIRED} ]; then
   # Loop over STDIN instead
   # based upon: http://www.etalabs.net/sh_tricks.html
   while `IFS= read -r stdin`; do
-    echo hej $stdin;
     for target in ${stdin}; do
       # and append the target to targetlist
       echo ${target};
-      echo hoj;
       targetlist+=(${target});
     done;
   done;
@@ -68,6 +66,9 @@ if [ ${#targetlist[@]} -lt 2 ] && [ "x${targetlist}" = "x" ]; then
   echo "  # Run on three files, with ORG_DIRECTORY=~/org,";
   echo "  # with 2 indentation, redirecting into ~/org/iotray.org";
   echo "  ORG_DIRECTORY=~/org $0 2 file1 file2 file3 \\";
+  echo "    >> ~/org/iotray.org";
+  echo "  # Using xargs, since piping results in subshell";
+  echo "  ls file*.png | ORG_DIRECTORY=~/org xargs $0 2 \\";
   echo "    >> ~/org/iotray.org";
   echo "";
   echo "process_file_org  Copyright (C) 2017  Robert Pilstål;"
