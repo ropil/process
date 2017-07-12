@@ -90,6 +90,7 @@ for ((i=0; i < ${indent}; i++)); do
 done;
 # Todays date
 today=`date +%Y-%m-%d`;
+TODAY=`date "+%Y-%m-%d %a"`;
 
 # Loop over target files
 for target in ${targetlist}; do
@@ -127,7 +128,9 @@ for target in ${targetlist}; do
   # checked in succession, thereby providing the first generalized path.
   # Good for semi sandboxed work across multiple devices.
   
-  filename=`basename ${target}`;
-  echo "${indentation} FILE [${today}]: ${filename}";
-  echo "[[file:${dirpath}/${filename}]]";
+  filesuffix=`basename ${target} | awk -F . '{print $NF}'`;
+  filename=`basename ${target} .${filesuffix}`;
+  filepath=`basename ${target}`;
+  echo "${indentation} [${TODAY}] FILE: [${filesuffix}] ${filename}";
+  echo "[[file:${dirpath}/${filepath}]]";
 done;
