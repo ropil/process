@@ -26,7 +26,7 @@ let LISTSTART=${NUMSETTINGS}+1;
 
 # I/O-check and help text
 if [ $# -lt ${NUMREQUIRED} ]; then
-  echo "USAGE: [IOTRAY=iotray.org] [INDENT=2] [SHRT=576] [LONG=768] [ORG_DIRECTORY=] \\";
+  echo "USAGE: [IOTRAY=iotray.org] [INDENT=2] [SHRT=1536] [LONG=2048] [ORG_DIRECTORY=] \\";
   echo "       $0 <destination> <name> <target1> [<target2> [...]]";
   echo "";
   echo " OPTIONS:";
@@ -35,8 +35,10 @@ if [ $# -lt ${NUMREQUIRED} ]; then
   echo "  targetX     - image files to process";
   echo "";
   echo " ENVIRONMENT:";
-  echo "  SHRT - Size of short dimension (default=576, try 384, 768 or 1536)";
-  echo "  LONG - Size of long dimension (default=768, try 512, 1024 or 2048)";
+  echo "  SHRT - Size of short dimension (default=1536, try 384, 576,";
+  echo "         768 or 1024)";
+  echo "  LONG - Size of long dimension (default=2048, try 512, 768,";
+  echo "         1024 or 1365)";
   echo "  ORG_DIRECTORY - Root where org-files are located, defaults";
   echo "                  to location specified with org-directory in";
   echo "                  ${HOME}/.emacs";
@@ -61,10 +63,10 @@ targetlist=${@:$LISTSTART};
 
 # Set default values
 if [ -z ${SHRT} ]; then
-  SHRT=576;
+  SHRT=1536;
 fi
 if [ -z ${LONG} ]; then
-  LONG=768;
+  LONG=2048;
 fi
 if [ -z ${ORG_DIRECTORY} ]; then
   # This requires a separate setq statement to initiate the org-directory variable
