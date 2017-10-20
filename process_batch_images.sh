@@ -35,8 +35,8 @@ if [ $# -lt ${NUMREQUIRED} ]; then
   echo "  targetX     - image files to process";
   echo "";
   echo " ENVIRONMENT:";
-  echo "  SHRT - Size of short dimension (default=576, try 384 or 768)";
-  echo "  LONG - Size of long dimension (default=768, try 512 or 1024)";
+  echo "  SHRT - Size of short dimension (default=576, try 384, 768 or 1536)";
+  echo "  LONG - Size of long dimension (default=768, try 512, 1024 or 2048)";
   echo "  ORG_DIRECTORY - Root where org-files are located, defaults";
   echo "                  to location specified with org-directory in";
   echo "                  ${HOME}/.emacs";

@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Stub for processing image files from phone into smaller format
+# Wrapper joining pdf's using pdftk and setting resolution with gs
 # Copyright (C) 2017  Robert Pilstål
 #
 #   This program is free software: you can redistribute it and/or modify
@@ -26,21 +26,24 @@ let LISTSTART=${NUMSETTINGS}+1;
 
 # I/O-check and help text
 if [ $# -lt ${NUMREQUIRED} ]; then
-  echo "USAGE: [SHRT=576] [LONG=768] $0 <name> <image1> [<image2> [...]]";
+  echo "USAGE: [RESOLUTION=/ebook] $0 <output> <file1> [<file2> [...]]";
   echo "";
   echo " OPTIONS:";
-  echo "  name   - basename of process batch (used for output names)";
-  echo "  imageN - image targets to process";
+  echo "  output - output pdf name";
+  echo "  fileX - pdf-files to join, in order";
   echo "";
   echo " ENVIRONMENT:";
-  echo "  SHRT - Size of short dimension (default=576, try 384, 768 or 1536)";
-  echo "  LONG - Size of long dimension (default=768, try 512, 1024 or 2048)";
+  echo "  RESOLUTION - gs conversion resolution;";
+  echo "                 /screen";
+  echo "                 /ebook    (default)";
+  echo "                 /printer";
+  echo "                 /prepress";
   echo "";
   echo " EXAMPLES:";
-  echo "  # Process two image files";
-  echo "  SHRT=576 LONG=768 $0 image_01.png image_02.jpg";
+  echo "  # Run on three files, with medium resolution";
+  echo "  RESOLUTION=/ebook $0 output.pdf page1.pdf page2.pdf page3.pdf;";
   echo "";
-  echo "process_image_phone  Copyright (C) 2017  Robert Pilstål;"
+  echo "process_join_pdf  Copyright (C) 2017  Robert Pilstål;"
   echo "This program comes with ABSOLUTELY NO WARRANTY.";
   echo "This is free software, and you are welcome to redistribute it";
   echo "under certain conditions; see supplied General Public License.";
@@ -48,38 +51,18 @@ if [ $# -lt ${NUMREQUIRED} ]; then
 fi;
 
 # Parse settings
-name=$1;
+output=$1;
 targetlist=${@:$LISTSTART};
 
 # Set default values
-if [ -z ${SHRT} ]; then
-  SHRT=576; #768, 384
+if [ -z ${RESOLUTION} ]; then
+  RESOLUTION="/ebook";
 fi
 
-if [ -z ${LONG} ]; then
-  LONG=768; #1024, 512
-fi
+tmppdf="tmp_`date +%s`.pdf";
 
-today=`date +%Y%m%d`;
+# Join pdf's
+pdftk ${targetlist[@]} cat output ${tmppdf};
 
-# Loop over arguments
-num=0;
-for target in ${targetlist}; do
-  let num=$num+1;
-  suf=`basename ${target} | awk -F . '{print $NF}'`;
-  dir=`dirname ${target}`;
-  out=${dir}/${today}_${name}_`printf %02d ${num}`.${suf};
-  read x y <<< `file ${target} |
-    awk -F , '{
-                for(i=1; i <= NF; i++)
-                  print $i
-              }' |
-    grep "^\s*[[:digit:]]\+x[[:digit:]]\+\s*$" |
-    sed 's/x/ /'`;
-  size="${SHRT}x${LONG}";
-  if [ $x -gt $y ]; then
-    size="${LONG}x${SHRT}";
-  fi;
-  convert ${target} -resize ${size} ${out};
-  echo ${out};
-done;
+# Lower resolution
+gs -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=${RESOLUTION} -sOutputFile=${output} ${tmppdf};
